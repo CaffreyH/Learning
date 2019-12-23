@@ -1,6 +1,6 @@
 ## <center>Java8 Optional</center>
 
-## 最重要：
+## 重要概念：
 
 **1. isPresent() 与 obj != null 无任何区别, 我们的生活依然在步步惊心. 而没有 isPresent() 作铺垫的 get() 调用在 IntelliJ IDEA 中会收到告警。调用 Optional.get() 前不事先用 isPresent() 检查值是否可用. 假如 Optional 不包含一个值, get() 将会抛出一个异常！**
 
@@ -9,7 +9,7 @@
 **3. 使用任何像 Optional 的类型作为字段或方法参数都是不可取的. Optional 只设计为类库方法的, 可明确表示可能无值情况下的返回类型. Optional 类型不可被序列化, 用作字段类型会出问题的！！！**
 
 ## 正确的打开姿势
-如果使用了Optional，但却仍然使用If(isPresent),这将与使用if(null),没有区别，这样的用法是毫无意义的，正确的打开姿势：
+如果使用了Optional，但却仍然使用If(isPresent),这将与使用if(null),没有区别，这样的用法是毫无意义的，正确的打开姿势：(实例代码在最后)
 
 **1. 存在即返回, 无则提供默认值**
 
@@ -179,3 +179,63 @@ Optional.ofNullable(T value)
 **flatMap(Function mapper)**
 
 如果值存在，就对该值执行提供的mapping 函数调用，返回一个 Optional 类型的值，否则就返回一个空的 Optional 对象。
+
+## 实例
+基本类
+    
+    @Data
+    class User {
+        String username;
+        int age;
+        public User(String username) {
+            this.username = username;
+        }
+    }
+ 使用类
+    
+     class myTest {
+        public static void main(String[] args) {
+            myTest test = new myTest();
+            //System.out.println(test.getUser2().getUsername());
+            // System.out.println(test.getUser4());
+            System.out.println(test.getUser5());
+        }
+        // orElse
+        User getUser1()
+        {
+            User user = null;
+            Optional<User> optionalUser = Optional.ofNullable(user);
+            return optionalUser.orElse(new User("default"));
+        }
+        // orElseGEt
+        User getUser2()
+        {
+            User user = null;
+            Optional<User> optionalUser = Optional.ofNullable(user);
+            return optionalUser.orElseGet(()->getUser1());
+        }
+        // ifPresent
+        User getUser3()
+        {
+            User user = new User("xiaoming");
+            Optional<User> optionalUser = Optional.ofNullable(user);
+            optionalUser.ifPresent(System.out::println);
+            return optionalUser.orElseGet(()->getUser1());
+        }
+        // map
+        int getUser4()
+        {
+            User user = new User("xiaoming");
+            Optional<User> optionalUser = Optional.ofNullable(user);
+            return optionalUser.map(user1 -> user1.getAge()).orElse(1);
+        }
+        // filter
+        int getUser5()
+        {
+            User user = new User("xiaoming");
+            user.setAge(5);
+            Optional<User> optionalUser = Optional.ofNullable(user);
+            Optional<Integer> a = optionalUser.map(user1 -> user1.getAge()).filter((value)->value>10);
+            return a.orElse(10);
+        }
+     }
